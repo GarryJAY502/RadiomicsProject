@@ -1,0 +1,56 @@
+# This is an example of a parameters file
+# It is written according to the YAML-convention (www.yaml.org) and is checked by the code for consistency.
+# Three types of parameters are possible and reflected in the structure of the document:
+#
+# Parameter category:
+#   Setting Name: <value>
+#
+# The three parameter categories are:
+# - setting: Setting to use for preprocessing and class specific settings. if no <value> is specified, the value for
+#   this setting is set to None.
+# - featureClass: Feature class to enable, <value> is list of strings representing enabled features. If no <value> is
+#   specified or <value> is an empty list ('[]'), all features for this class are enabled.
+# - imageType: image types to calculate features on. <value> is custom kwarg settings (dictionary). if <value> is an
+#   empty dictionary ('{}'), no custom settings are added for this input image.
+#
+# Some parameters have a limited list of possible values. Where this is the case, possible values are listed in the
+# package documentation
+
+# Settings to use, possible settings are listed in the documentation (section "Customizing the extraction").
+setting:
+  binWidth: 25 # binWidth表示的是每个bin的宽度为25，因为pyradiomics库提取的大部分特征是根据各种灰度直方图算的，所以binWidth指的是制作直方图和离散化图像灰度时的 bin 大小。
+  label:  # label指的是你传入的mask文件的哪一类是你要用的标签。比如一般的医学图像的mask会有多种标签，0表示肿瘤，1表示组织啥的，所以你要指定哪一个是你要用的。
+  interpolator: 'sitkBSpline' # This is an enumerated value, here None is not allowed 重采样是的差值方法
+  resampledPixelSpacing: # This disables resampling, as it is interpreted as None, to enable it, specify spacing in x, y, z as [x, y , z] 重采样的参数
+  weightingNorm: # If no value is specified, it is interpreted as None
+  geometryTolerance: 1e-2
+  normalize: False
+  correctMask: True
+
+# Image types to use: "Original" for unfiltered image, for possible filters, see documentation.
+imageType: # 定义要对图像进行的操作，可以理解为某种数据增强，本来应该提取100多个特征的，但是用了imageType后可以增加至成败上千个特征。
+  Original: {} # for dictionaries / mappings, None values are not allowed, '{}' is interpreted as an empty dictionary　原图直接提取
+  # Square: {}　＃　对图像进行平方操作再提取特征
+  # SquareRoot: {}　＃　对图像进行平方根操作之后再提取特征
+  # Logarithm: {}　＃　对图像进行log变换后再提取特征
+  # Exponential: {}　＃　对图像进行指数变换后再提取特征
+  # 上述这几个都是直接对原图像的像素值进行操作，改变的是原有的像素值，换句话说可以改变图像的明暗程度，对比度啥的。
+  # LoG表示的是拉普拉斯变换，因为LoG分为两步：1.高斯去噪 2.拉普拉斯变换，所以sigma参数表示的是第一步去噪的卷积核的sigma参数，其大小影响了去噪的模糊程度。
+  # Wavelet表示的是小波变换，其中wavelet表示的是小波的基函数类型，binwindth顾名思义表示的是bin的宽度。https://pyradiomics.readthedocs.io/en/latest/customization.html这个链接为官网的链接，里面包含了可选的小波基函数的类型。
+  # LBP3D用来提取图像局部纹理特征，参数有3个，给一个参考链接人脸识别经典算法二：https://blog.csdn.net/huangxiaojie/article/details/44747703
+  # Gradient提取的是图像的梯度信息
+
+
+# Featureclasses, from which features must be calculated. If a featureclass is not mentioned, no features are calculated
+# for that class. Otherwise, the specified features are calculated, or, if none are specified, all are calculated (excluding redundant/deprecated features).
+featureClass:
+  # redundant Compactness 1, Compactness 2 an Spherical Disproportion features are disabled by default, they can be
+  # enabled by specifying individual feature names (as is done for glcm) and including them in the list.
+  shape:
+  firstorder: [] # specifying an empty list has the same effect as specifying nothing.
+  glcm:  # Disable SumAverage by specifying all other GLCM features available
+  glrlm: # for lists none values are allowed, in this case, all features are enabled
+  glszm:
+  gldm:  # contains deprecated features, but as no individual features are specified, the deprecated features are not enabled
+  ngtdm:
+
